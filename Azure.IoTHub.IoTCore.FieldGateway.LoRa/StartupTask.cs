@@ -26,12 +26,17 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 	using devMobile.IoT.Rfm9x;
 
 	using Microsoft.Azure.Devices.Client;
+	using Microsoft.Azure.Devices.Shared;
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
 	using Newtonsoft.Json.Linq;
+	using Windows.ApplicationModel;
 	using Windows.ApplicationModel.Background;
 	using Windows.Foundation.Diagnostics;
 	using Windows.Storage;
+	using Windows.Storage.Streams;
+	using Windows.System;
+	using Windows.System.Profile;
 
 	public sealed class StartupTask : IBackgroundTask
 	{
@@ -109,6 +114,41 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			catch (Exception ex)
 			{
 				this.logging.LogMessage("IoT Hub connection failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
+
+			try
+			{
+				TwinCollection reportedProperties;
+				reportedProperties = new TwinCollection();
+
+				// This is from the OS 
+				reportedProperties["Timezone"] = TimeZoneSettings.CurrentTimeZoneDisplayName;
+				reportedProperties["OSVersion"] = Environment.OSVersion.VersionString;
+				reportedProperties["MachineName"] = Environment.MachineName;
+
+				// This is from the application manifest 
+				Package package = Package.Current;
+				PackageId packageId = package.Id;
+				PackageVersion version = packageId.Version;
+				reportedProperties["ApplicationDisplayName"] = package.DisplayName;
+				reportedProperties["ApplicationName"] = packageId.Name;
+				reportedProperties["ApplicationVersion"] = string.Format($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
+
+				// Unique identifier from the hardware
+				SystemIdentificationInfo systemIdentificationInfo = SystemIdentification.GetSystemIdForPublisher();
+				using (DataReader reader = DataReader.FromBuffer(systemIdentificationInfo.Id))
+				{
+					byte[] bytes = new byte[systemIdentificationInfo.Id.Length];
+					reader.ReadBytes(bytes);
+					reportedProperties["SystemId"] = BitConverter.ToString(bytes);
+				}
+
+				azureIoTHubClient.UpdateReportedPropertiesAsync(reportedProperties).Wait();
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("IoT Hub updating reported properties failed " + ex.Message, LoggingLevel.Error);
 				return;
 			}
 

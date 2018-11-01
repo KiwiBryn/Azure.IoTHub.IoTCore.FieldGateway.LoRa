@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10" IgnorableNamespaces="uap mp iot">
-  <Identity Name="Azure.IoTHub.IoTCore.FieldGateway.LoRa-uwp" Publisher="CN=Bryn.Lewis" Version="1.0.0.0" />
+  <Identity Name="Azure.IoTHub.IoTCore.FieldGateway.LoRa" Publisher="CN=Bryn.Lewis" Version="1.0.4.0" />
   <mp:PhoneIdentity PhoneProductId="7d3ed780-56b2-4f90-98cf-18b6e777c470" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Azure.IoTHub.IoTCore.FieldGateway.LoRa</DisplayName>
+    <DisplayName>devMobile Software Azure IoTHub LoRa Field Gateway</DisplayName>
     <PublisherDisplayName>Bryn.Lewis</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App">
-      <uap:VisualElements DisplayName="Azure.IoTHub.IoTCore.FieldGateway.LoRa" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Azure.IoTHub.IoTCore.FieldGateway.LoRa" BackgroundColor="transparent" AppListEntry="none">
+      <uap:VisualElements DisplayName="devMobile Software Azure IoTHub LoRa Field Gateway" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="devMobile Software UWP Headless application which uploads data to Azure IoT Hubs from LoRa wireless connected devices" BackgroundColor="transparent" AppListEntry="none">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
