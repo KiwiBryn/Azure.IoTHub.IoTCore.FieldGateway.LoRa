@@ -28,7 +28,7 @@ RPIPlus Shield from [@Uputronics](https://store.uputronics.com/index.php?route=p
 
 I have sample client applications which show how to send telemetry from
 * [@Arduino](https://blog.devmobile.co.nz/2018/09/05/arduino-payload-addressing-client/) using Dragino, elecrow and MakerFabs shields
-* [@Netduino](https://blog.devmobile.co.nz/2018/09/17/netduino-lora-radio-433-868-915-mhz-payload-addressing-client/)
+* [@Netduino](https://blog.devmobile.co.nz/2018/09/17/netduino-lora-radio-433-868-915-mhz-payload-addressing-client/) using Dragino, elecrow and MakerFabs shields
 * [@Maduino](https://blog.devmobile.co.nz/2018/09/15/maduino-lora-radio-868mhz/)
 * [@IoTNet](https://blog.devmobile.co.nz/2018/09/20/iot-net-lora-radio-915-mhz-payload-addressing-client/)
 * [@IoTMCU915](https://blog.devmobile.co.nz/2018/09/18/lora-radio-node-v1-0-868-915mhz-payload-addressing-client/)
@@ -39,8 +39,9 @@ I have sample client applications which show how to send telemetry from
 * [@Wisen Whisper Node LoRa](https://blog.devmobile.co.nz/2018/09/24/wisen-whisper-node-lora-915-mhz-payload-addressing-client/)
 * [@Dragino LoRa Mini Dev](https://blog.devmobile.co.nz/2018/09/13/dragino-loraminidev-payload-addressing-client/)
 
-An empty configuration file is created the first time the application is run. A minimal configuration file has the device name, the Azure Device Client protocol, and the centre frequency.
+An empty configuration file is created the first time the application is run. A minimal configuration file has the device address, the Azure Device Client transport protocol, and the centre frequency.
 
+```Json
 {
   "AzureIoTHubDeviceConnectionString": "HostName=saas-iothub-12345678-9012-3456-7890-123456789012.azure-devices.net;DeviceId=b1234567890d;SharedAccessKey=qwertyuiopasdfghjklzxcvbnm1234567890qwertyu=",
   "AzureIoTHubTransportType": "amqp",
@@ -48,10 +49,12 @@ An empty configuration file is created the first time the application is run. A 
   "Address": "LoRaIoT1",
   "Frequency": 915000000.0
 }
+```
+
 
 The application has been tested with 433MHz and 915MHz devices and stress tested will a number of clients
 ![Stress tester](LoRaStress.jpg)
 
 The "SensorIDIsDeviceIDSensorID" flag concatenates the deviceID and SensorID together so the device can work with Azure IoT Central.
 
-The packet format is detailed in these blog posts (https://blog.devmobile.co.nz/2018/09/03/rfm9x-iotcore-payload-addressing/) and (https://blog.devmobile.co.nz/2018/09/04/rfm9x-netmf-payload-addressing/). Itwas intentionally kept simple to make it easier for students to user and debug.
+The packet format is detailed in these blog posts (https://blog.devmobile.co.nz/2018/09/03/rfm9x-iotcore-payload-addressing/) and (https://blog.devmobile.co.nz/2018/09/04/rfm9x-netmf-payload-addressing/). It was intentionally kept simple to make it easier for students to user and debug.
