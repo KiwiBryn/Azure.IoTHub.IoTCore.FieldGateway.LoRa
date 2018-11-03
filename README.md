@@ -1,7 +1,7 @@
 # Azure IoTHub Windows IoTCore LoRa FieldGateway 
 AzureIoT Hub Windows 10 IotCore Field Gateway for LoRa capable devices
 
-A Windows 10 IoT Core application based on my [@RFM9X Library](https://github.com/KiwiBryn/RFM9XLoRa-NetMF)for uploading telemetry data from SRFM9X/SX127X equipped devices to an [@Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub/) or [@Azure IoT Central](https://azure.microsoft.com/en-us/services/iot-central/)
+A Windows 10 IoT Core application based on my [@RFM9X Library](https://github.com/KiwiBryn/RFM9XLoRa-NetMF) for uploading telemetry data from RFM9X/SX127X equipped devices to an [@Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub/) or [@Azure IoT Central](https://azure.microsoft.com/en-us/services/iot-central/)
 
 The field gateway currently supports these shields
 
@@ -51,10 +51,19 @@ An empty configuration file is created the first time the application is run. A 
 }
 ```
 
-
 The application has been tested with 433MHz and 915MHz devices and stress tested will a number of clients
 ![Stress tester](LoRaStress.jpg)
 
 The "SensorIDIsDeviceIDSensorID" flag concatenates the deviceID and SensorID together so the device can work with Azure IoT Central.
 
-The packet format is detailed in these blog posts (https://blog.devmobile.co.nz/2018/09/03/rfm9x-iotcore-payload-addressing/) and (https://blog.devmobile.co.nz/2018/09/04/rfm9x-netmf-payload-addressing/). It was intentionally kept simple to make it easier for students to user and debug.
+The packet format is detailed in these blog posts [@IoTCore](https://blog.devmobile.co.nz/2018/09/03/rfm9x-iotcore-payload-addressing/) and [@NetMF](https://blog.devmobile.co.nz/2018/09/04/rfm9x-netmf-payload-addressing/). It was intentionally kept simple to make it easier for students to user and debug.
+
+Future proposed enhancements include
+  * Device property uploading
+  * Azure Device provisioning support
+  * Cloud to device messaging
+  * OTA device provisioning
+  * OTA Data encryption
+  * Remote settings configuration with Azure IoT Hub device twins
+  * Support for other Windows 10 IoT Core devices e.g. Dragon Board 410C
+  * Support for other SX127X/RFM9X shields/plates/mezzanine boards
