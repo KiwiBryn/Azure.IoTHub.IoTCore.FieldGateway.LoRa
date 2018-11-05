@@ -3,6 +3,15 @@ AzureIoT Hub Windows 10 IotCore Field Gateway for LoRa capable devices
 
 A Windows 10 IoT Core application based on my [@RFM9X Library](https://github.com/KiwiBryn/RFM9XLoRa-NetMF) for uploading telemetry data from RFM9X/SX127X equipped devices to an [@Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub/) or [@Azure IoT Central](https://azure.microsoft.com/en-us/services/iot-central/)
 
+The field gateway will upload data to Azure IoT Hubs or Azure IoT Central
+![IoT Central Measurements](AzureIoTLoRaGatewayMeasurments.PNG)
+
+It has device properties for debugging and support
+![IoT Central Device Properties](AzureIoTLoRaGatewayProperties.PNG)
+
+The application logs data to ETW for debugging and support
+![Windows 10 IoT Core ETW](AzureIoTLoRaGatewayETW.PNG)
+
 The field gateway currently supports these shields
 
 [@Dragino](http://www.dragino.com/products/lora/item/106-lora-gps-hat.html)
