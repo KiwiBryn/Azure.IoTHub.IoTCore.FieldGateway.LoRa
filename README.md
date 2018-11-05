@@ -68,7 +68,7 @@ The "SensorIDIsDeviceIDSensorID" flag concatenates the deviceID and SensorID tog
 The packet format is detailed in these blog posts [@IoTCore](https://blog.devmobile.co.nz/2018/09/03/rfm9x-iotcore-payload-addressing/) and [@NetMF](https://blog.devmobile.co.nz/2018/09/04/rfm9x-netmf-payload-addressing/). It was intentionally kept simple to make it easier for students to user and debug.
 
 Future proposed enhancements include
-  * Device property uploading
+  * Device property support (Done Nov 2018)
   * Azure Device provisioning support
   * Cloud to device messaging
   * OTA device provisioning
