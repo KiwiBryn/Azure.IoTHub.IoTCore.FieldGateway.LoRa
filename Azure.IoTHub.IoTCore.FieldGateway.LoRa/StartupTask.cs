@@ -386,20 +386,28 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				string sensorId = sensorIdAndValue[0];
 				string value = sensorIdAndValue[1];
 
-				if (this.applicationSettings.SensorIDIsDeviceIDSensorID)
+				try
 				{
-					// Construct the sensor ID from SensordeviceID & Value ID
-					telemetryDataPoint.Add(string.Format("{0}{1}", addressText, sensorId), value);
+					if (this.applicationSettings.SensorIDIsDeviceIDSensorID)
+					{
+						// Construct the sensor ID from SensordeviceID & Value ID
+						telemetryDataPoint.Add(string.Format("{0}{1}", addressText, sensorId), value);
 
-					sensorData.AddString(string.Format("{0}{1}", addressText, sensorId), value);
-					Debug.WriteLine(" Sensor {0}{1} Value {2}", addressText, sensorId, value);
+						sensorData.AddString(string.Format("{0}{1}", addressText, sensorId), value);
+						Debug.WriteLine(" Sensor {0}{1} Value {2}", addressText, sensorId, value);
+					}
+					else
+					{
+						telemetryDataPoint.Add(sensorId, value);
+
+						sensorData.AddString(sensorId, value);
+						Debug.WriteLine(" Device {0} Sensor {1} Value {2}", addressText, sensorId, value);
+					}
 				}
-				else
+				catch (Exception ex)
 				{
-					telemetryDataPoint.Add(sensorId, value);
-
-					sensorData.AddString(sensorId, value);
-					Debug.WriteLine(" Device {0} Sensor {1} Value {2}", addressText, sensorId, value);
+					this.logging.LogMessage("Sensor reading invalid JSON format " + ex.Message, LoggingLevel.Warning);
+					return;
 				}
 			}
 
