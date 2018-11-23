@@ -22,7 +22,7 @@
     <AppxPackage>true</AppxPackage>
     <ContainsStartupTask>true</ContainsStartupTask>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
@@ -31,7 +31,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;CODE_ANALYSIS;ADDRESSED_MESSAGES_PAYLOAD;UPUTRONICS_RPIPLUS_CS0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;CODE_ANALYSIS;ADDRESSED_MESSAGES_PAYLOAD;DRAGINO</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -109,6 +109,9 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Azure.IoTHub.IoTCore.FieldGateway.LoRa_TemporaryKey.pfx" />
+    <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\M2M1ChannelLoRaWanGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
@@ -156,6 +159,7 @@
       <Name>Windows IoT Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '15.0' ">
     <VisualStudioVersion>15.0</VisualStudioVersion>
   </PropertyGroup>
