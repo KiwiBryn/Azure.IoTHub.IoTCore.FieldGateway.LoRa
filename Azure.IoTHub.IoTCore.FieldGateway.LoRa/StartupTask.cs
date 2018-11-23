@@ -281,42 +281,32 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 		private async void Rfm9XDevice_OnReceive(object sender, Rfm9XDevice.OnDataReceivedEventArgs e)
 		{
-			string addressText;
 			string addressBcdText;
-			string messageText;
 			string messageBcdText;
+			string messageText = "";
 			char[] sensorReadingSeparators = new char[] { ',' };
 			char[] sensorIdAndValueSeparators = new char[] { ' ' };
 
-			try
-			{
-				addressText = UTF8Encoding.UTF8.GetString(e.Address);
-				addressBcdText = BitConverter.ToString(e.Address);
-			}
-			catch (Exception)
-			{
-				this.logging.LogMessage("Failure converting from Address to text or BCD", LoggingLevel.Error);
-				return;
-			}
+			addressBcdText = BitConverter.ToString(e.Address);
 
+			messageBcdText = BitConverter.ToString(e.Data);
 			try
 			{
 				messageText = UTF8Encoding.UTF8.GetString(e.Data);
-				messageBcdText = BitConverter.ToString(e.Data);
 			}
 			catch (Exception)
 			{
-				this.logging.LogMessage("Failure converting payload to text or BCD", LoggingLevel.Error);
+				this.logging.LogMessage("Failure converting payload to text", LoggingLevel.Error);
 				return;
 			}
 
-#if DEBUG
-			Debug.WriteLine(@"{0:HH:mm:ss}-RX From {1} PacketSnr {2:0.0} Packet RSSI {3}dBm RSSI {4}dBm = {5} byte message ""{6}""", DateTime.Now, addressText, e.PacketSnr, e.PacketRssi, e.Rssi, e.Data.Length, messageText);
-#endif
+
+		#if DEBUG
+			Debug.WriteLine(@"{0:HH:mm:ss}-RX From {1} PacketSnr {2:0.0} Packet RSSI {3}dBm RSSI {4}dBm = {5} byte message ""{6}""", DateTime.Now, messageBcdText, e.PacketSnr, e.PacketRssi, e.Rssi, e.Data.Length, messageText);
+		#endif
 			LoggingFields messagePayload = new LoggingFields();
 			messagePayload.AddInt32("AddressLength", e.Address.Length);
 			messagePayload.AddString("Address-BCD", addressBcdText);
-			messagePayload.AddString("Address-Unicode", addressText);
 			messagePayload.AddInt32("Message-Length", e.Data.Length);
 			messagePayload.AddString("Message-BCD", messageBcdText);
 			messagePayload.AddString("Message-Unicode", messageText);
@@ -362,8 +352,8 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			JObject telemetryDataPoint = new JObject(); // This could be simplified but for field gateway will use this style
 			LoggingFields sensorData = new LoggingFields();
 
-			telemetryDataPoint.Add("DeviceID", addressText);
-			sensorData.AddString("DeviceID", addressText);
+			telemetryDataPoint.Add("DeviceID", addressBcdText);
+			sensorData.AddString("DeviceID", addressBcdText);
 			telemetryDataPoint.Add("PacketSNR", e.PacketSnr.ToString("F1"));
 			sensorData.AddString("PacketSNR", e.PacketSnr.ToString("F1"));
 			telemetryDataPoint.Add("PacketRSSI", e.PacketRssi);
@@ -391,17 +381,17 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 					if (this.applicationSettings.SensorIDIsDeviceIDSensorID)
 					{
 						// Construct the sensor ID from SensordeviceID & Value ID
-						telemetryDataPoint.Add(string.Format("{0}{1}", addressText, sensorId), value);
+						telemetryDataPoint.Add(string.Format("{0}{1}", addressBcdText, sensorId), value);
 
-						sensorData.AddString(string.Format("{0}{1}", addressText, sensorId), value);
-						Debug.WriteLine(" Sensor {0}{1} Value {2}", addressText, sensorId, value);
+						sensorData.AddString(string.Format("{0}{1}", addressBcdText, sensorId), value);
+						Debug.WriteLine(" Sensor {0}{1} Value {2}", addressBcdText, sensorId, value);
 					}
 					else
 					{
 						telemetryDataPoint.Add(sensorId, value);
 
 						sensorData.AddString(sensorId, value);
-						Debug.WriteLine(" Device {0} Sensor {1} Value {2}", addressText, sensorId, value);
+						Debug.WriteLine(" Device {0} Sensor {1} Value {2}", addressBcdText, sensorId, value);
 					}
 				}
 				catch (Exception ex)
