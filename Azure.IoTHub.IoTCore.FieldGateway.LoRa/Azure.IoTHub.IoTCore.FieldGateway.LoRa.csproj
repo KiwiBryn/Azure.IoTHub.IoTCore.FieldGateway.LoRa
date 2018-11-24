@@ -110,8 +110,12 @@
     </AppxManifest>
     <None Include="Azure.IoTHub.IoTCore.FieldGateway.LoRa_TemporaryKey.pfx" />
     <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
     <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
+    <None Include="Installers\ElectronicTricksLoRaLoRaWANShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
     <None Include="Installers\M2M1ChannelLoRaWanGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\M2M1ChannelLoRaWanGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
@@ -159,7 +163,12 @@
       <Name>Windows IoT Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Installers\UputronicsPiPlusLoRaExpansionBoardCS0\" />
+    <Folder Include="Installers\UputronicsPiPlusLoRaExpansionBoardCS1\" />
+    <Folder Include="Installers\UputronicsPiZeroLoRaExpansionBoardCS0\" />
+    <Folder Include="Installers\UputronicsPiZeroLoRaExpansionBoardCS1\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '15.0' ">
     <VisualStudioVersion>15.0</VisualStudioVersion>
   </PropertyGroup>
