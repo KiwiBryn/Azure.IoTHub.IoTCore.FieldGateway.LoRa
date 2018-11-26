@@ -114,8 +114,8 @@
     <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
     <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
     <None Include="Installers\ElectronicTricksLoRaLoRaWANShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
-    <None Include="Installers\M2M1ChannelLoRaWanGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
-    <None Include="Installers\M2M1ChannelLoRaWanGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
+    <None Include="Installers\M2M1ChannelLoRaWANGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
+    <None Include="Installers\M2M1ChannelLoRaWANGatewayShield\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
