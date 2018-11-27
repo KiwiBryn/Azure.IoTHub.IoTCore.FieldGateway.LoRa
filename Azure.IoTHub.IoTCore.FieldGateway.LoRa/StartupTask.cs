@@ -337,7 +337,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 
 #if DEBUG
-			Debug.WriteLine(@"{0:HH:mm:ss}-RX From {1} PacketSnr {2:0.0} Packet RSSI {3}dBm RSSI {4}dBm = {5} byte message ""{6}""", DateTime.Now, messageBcdText, e.PacketSnr, e.PacketRssi, e.Rssi, e.Data.Length, messageText);
+			Debug.WriteLine(@"{0:HH:mm:ss}-RX From {1} PacketSnr {2:0.0} Packet RSSI {3}dBm RSSI {4}dBm = {5} byte message ""{6}""", DateTime.Now, addressBcdText, e.PacketSnr, e.PacketRssi, e.Rssi, e.Data.Length, messageText);
 #endif
 			LoggingFields messagePayload = new LoggingFields();
 			messagePayload.AddInt32("AddressLength", e.Address.Length);
