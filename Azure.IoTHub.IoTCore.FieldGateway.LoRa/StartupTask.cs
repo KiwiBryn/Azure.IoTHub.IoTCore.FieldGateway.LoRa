@@ -322,7 +322,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			char[] sensorReadingSeparators = new char[] { ',' };
 			char[] sensorIdAndValueSeparators = new char[] { ' ' };
 
-			addressBcdText = BitConverter.ToString(e.Address).ToLower();
+			addressBcdText = BitConverter.ToString(e.Address);
 
 			messageBcdText = BitConverter.ToString(e.Data);
 			try
