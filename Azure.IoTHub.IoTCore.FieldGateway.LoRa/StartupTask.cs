@@ -322,7 +322,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			char[] sensorReadingSeparators = new char[] { ',' };
 			char[] sensorIdAndValueSeparators = new char[] { ' ' };
 
-			addressBcdText = BitConverter.ToString(e.Address);
+			addressBcdText = BitConverter.ToString(e.Address).ToLower();
 
 			messageBcdText = BitConverter.ToString(e.Data);
 			try
@@ -408,7 +408,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 					return;
 				}
 
-				string sensorId = sensorIdAndValue[0];
+				string sensorId = sensorIdAndValue[0].ToLower();
 				string value = sensorIdAndValue[1];
 
 				try
