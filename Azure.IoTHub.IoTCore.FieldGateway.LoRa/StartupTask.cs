@@ -87,6 +87,8 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		private const byte MessageLengthMinimum = 3;
 		private const byte MessageLengthMaximum = 128;
 
+		private readonly TimeSpan DeviceRestartPeriod = new TimeSpan(0, 0, 25);
+
 		private readonly LoggingChannel logging = new LoggingChannel("devMobile Azure IotHub LoRa Field Gateway", null, new Guid("4bd2826e-54a1-4ba9-bf63-92b73ea1ac4a"));
 		private ApplicationSettings applicationSettings = null;
 		private DeviceClient azureIoTHubClient = null;
@@ -184,6 +186,16 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			catch (Exception ex)
 			{
 				this.logging.LogMessage("IoT Hub updating reported properties failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
+
+			try
+			{
+				azureIoTHubClient.SetMethodHandlerAsync("Restart", RestartAsync, null);
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("Azure IoT Hub Restart method handler setup failed " + ex.Message, LoggingLevel.Error);
 				return;
 			}
 
@@ -451,6 +463,19 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			{
 				this.logging.LogMessage("AzureIoTHubClient SendEventAsync failed " + ex.Message, LoggingLevel.Error);
 			}
+		}
+
+		private async Task<MethodResponse> RestartAsync(MethodRequest methodRequest, object userContext)
+		{
+			this.logging.LogMessage("Restart initiated", LoggingLevel.Information);
+
+			// Disconnect the transmit and receive callbacks, once messages Send & Push need to consider what todo with queued outbound messages
+			rfm9XDevice.OnReceive -= Rfm9XDevice_OnReceive;
+			rfm9XDevice.OnTransmit -= Rfm9XDevice_OnTransmit;
+
+			ShutdownManager.BeginShutdown(ShutdownKind.Restart, DeviceRestartPeriod);
+
+			return new MethodResponse( 200 );
 		}
 
 		private class ApplicationSettings

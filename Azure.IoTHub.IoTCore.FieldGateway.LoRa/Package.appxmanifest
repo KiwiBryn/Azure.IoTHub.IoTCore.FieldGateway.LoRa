@@ -31,5 +31,6 @@
   </Applications>
   <Capabilities>
     <Capability Name="internetClient" />
+    <iot:Capability Name="systemManagement" />
   </Capabilities>
 </Package>
