@@ -130,6 +130,11 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #if UPUTRONICS_RPIPLUS_CS1
 			appllicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS1");
 #endif
+#if BOND_DEVICE
+			appllicationBuildInformation.AddString("BondDevice", "Supported");
+#else
+			appllicationBuildInformation.AddString("BondDevice", "NotSupported");
+#endif
 			appllicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
 			appllicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
 			appllicationBuildInformation.AddString("MachineName", Environment.MachineName);
