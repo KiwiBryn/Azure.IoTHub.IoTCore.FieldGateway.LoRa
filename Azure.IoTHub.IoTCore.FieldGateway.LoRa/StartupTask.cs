@@ -19,7 +19,9 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 	using System;
 	using System.ComponentModel;
 	using System.Diagnostics;
+	using System.Globalization;
 	using System.IO;
+	using System.Linq;
 	using System.Text;
 	using System.Threading.Tasks;
 
@@ -128,6 +130,11 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #if UPUTRONICS_RPIPLUS_CS1
 			appllicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS1");
 #endif
+#if BOND_DEVICE
+			appllicationBuildInformation.AddString("BondDevice", "Supported");
+#else
+			appllicationBuildInformation.AddString("BondDevice", "NotSupported");
+#endif
 			appllicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
 			appllicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
 			appllicationBuildInformation.AddString("MachineName", Environment.MachineName);
@@ -198,6 +205,18 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				this.logging.LogMessage("Azure IoT Hub Restart method handler setup failed " + ex.Message, LoggingLevel.Error);
 				return;
 			}
+
+#if BOND_DEVICE
+			try
+			{
+				azureIoTHubClient.SetMethodHandlerAsync("BondDevice", BondDeviceAsync, null);
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("Azure IoT Hub Dond Device method handler setup failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
+#endif
 
 			// Configure the LoRa module
 			rfm9XDevice.OnReceive += Rfm9XDevice_OnReceive;
@@ -270,7 +289,8 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 		private void Rfm9XDevice_OnTransmit(object sender, Rfm9XDevice.OnDataTransmitedEventArgs e)
 		{
-			throw new NotImplementedException();
+			Debug.WriteLine("Rfm9XDevice_OnTransmit");
+			this.logging.LogMessage("Rfm9XDevice_OnTransmit", LoggingLevel.Information);
 		}
 
 		private async Task<bool> ConfigurationFileLoad()
@@ -478,6 +498,39 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			return new MethodResponse( 200 );
 		}
 
+#if BOND_DEVICE
+		private async Task<MethodResponse> BondDeviceAsync(MethodRequest methodRequest, object userContext)
+		{
+			LoggingFields deviceData = new LoggingFields();
+
+			try
+			{
+				dynamic json = JValue.Parse(methodRequest.DataAsJson);
+
+				string deviceIdBcd = json.DeviceAddress;
+
+				deviceData.AddString("DeviceID", deviceIdBcd);
+
+				Debug.WriteLine($"BondDeviceAsync DeviceID {deviceIdBcd}");
+
+				byte[] addressBytes = deviceIdBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+				byte[] payloadBytes = { 1 };
+
+				rfm9XDevice.Send(addressBytes, payloadBytes);
+
+				this.logging.LogEvent("Bond Device settings", deviceData, LoggingLevel.Information);
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("BondDeviceAsync failed " + ex.Message, LoggingLevel.Error);
+
+				return new MethodResponse(400);
+			}
+
+			return new MethodResponse(200);
+		}
+#endif
+
 		private class ApplicationSettings
 		{
 			[JsonProperty("AzureIoTHubDeviceConnectionString", Required = Required.Always)]
@@ -602,3 +655,4 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		}
 	}
 }
+ 
