@@ -79,7 +79,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		private const byte InterruptLine = 25;
 		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, InterruptLine);
 #endif
-#if UPUTRONICS_RPIPLUS_CS1 
+#if UPUTRONICS_RPIPLUS_CS1
 		private const byte InterruptLine = 16;
 		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, InterruptLine);
 #endif
@@ -193,7 +193,6 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			catch (Exception ex)
 			{
 				this.logging.LogMessage("IoT Hub updating reported properties failed " + ex.Message, LoggingLevel.Error);
-				return;
 			}
 
 			try
