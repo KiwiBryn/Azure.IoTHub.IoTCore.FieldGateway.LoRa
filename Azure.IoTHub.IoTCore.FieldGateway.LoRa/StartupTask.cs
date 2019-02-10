@@ -97,10 +97,18 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 		public void Run(IBackgroundTaskInstance taskInstance)
 		{
-			// Load the settings from configuration file exit application if missing or invalid
+			StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+
 			try
 			{
-				StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+				// see if the configuration file is present if not copy minimal sample one from application directory
+				if ( localFolder.TryGetItemAsync(ConfigurationFilename).AsTask().Result == null)
+				{
+					StorageFile templateConfigurationfile = Package.Current.InstalledLocation.GetFileAsync(ConfigurationFilename).AsTask().Result;
+					templateConfigurationfile.CopyAsync(localFolder, ConfigurationFilename).AsTask();
+				}
+
+				// Load the settings from configuration file exit application if missing or invalid
 				StorageFile file = localFolder.GetFileAsync(ConfigurationFilename).AsTask().Result;
 
 				applicationSettings = (JsonConvert.DeserializeObject<ApplicationSettings>(FileIO.ReadTextAsync(file).AsTask().Result));
