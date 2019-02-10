@@ -45,7 +45,6 @@ I have sample client applications which show how to send telemetry from
 * [@Elecrow 32u4 with LoRa RFM95 IoT Boatd](https://blog.devmobile.co.nz/2018/09/19/32u4-with-lora-rfm95-iot-board-payload-addressing-client/)
 * [@M2M Low power LoRaWan Node Model A328](https://blog.devmobile.co.nz/2018/09/14/low-power-lorawan-node-model-a328-payload-addressing-client/)
 * [@M2M Low power LoRaWan Node Model B1284](https://blog.devmobile.co.nz/2018/09/16/low-power-lorawan-node-model-b1248-payload-addressing-client/)
-* [@Wisen Whisper Node LoRa](https://blog.devmobile.co.nz/2018/09/24/wisen-whisper-node-lora-915-mhz-payload-addressing-client/)
 * [@Dragino LoRa Mini Dev](https://blog.devmobile.co.nz/2018/09/13/dragino-loraminidev-payload-addressing-client/)
 * [@SparkFun Pro RF LoRa 915MHz](https://blog.devmobile.co.nz/2018/12/11/sparkfun-pro-rf-lora-915mhz-payload-addressing-client/)
 * [@Motenino M0](https://blog.devmobile.co.nz/2018/11/30/moteino-m0-payload-addressing-client/)
