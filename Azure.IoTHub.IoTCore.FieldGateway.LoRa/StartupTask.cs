@@ -20,7 +20,6 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 	using System.ComponentModel;
 	using System.Diagnostics;
 	using System.Globalization;
-	using System.IO;
 	using System.Linq;
 	using System.Text;
 	using System.Threading.Tasks;
@@ -98,9 +97,17 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 		public void Run(IBackgroundTaskInstance taskInstance)
 		{
-
-			if (!this.ConfigurationFileLoad().Result)
+			// Load the settings from configuration file exit application if missing or invalid
+			try
 			{
+				StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+				StorageFile file = localFolder.GetFileAsync(ConfigurationFilename).AsTask().Result;
+
+				applicationSettings = (JsonConvert.DeserializeObject<ApplicationSettings>(FileIO.ReadTextAsync(file).AsTask().Result));
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("JSON configuration file load failed " + ex.Message, LoggingLevel.Error);
 				return;
 			}
 
@@ -290,59 +297,6 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		{
 			Debug.WriteLine("Rfm9XDevice_OnTransmit");
 			this.logging.LogMessage("Rfm9XDevice_OnTransmit", LoggingLevel.Information);
-		}
-
-		private async Task<bool> ConfigurationFileLoad()
-		{
-			StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-
-			try
-			{
-				// Check to see if file exists
-				if (localFolder.TryGetItemAsync(ConfigurationFilename).GetAwaiter().GetResult() == null)
-				{
-					this.logging.LogMessage("Configuration file " + ConfigurationFilename + " not found", LoggingLevel.Error);
-
-					this.applicationSettings = new ApplicationSettings()
-					{
-						AzureIoTHubDeviceConnectionString = "Azure IoT Hub connection string goes here",
-						AzureIoTHubTransportType = TransportType.Amqp,
-						Address = "Address here",
-						Frequency = 915000000,
-					};
-
-					// Create empty configuration file
-					StorageFile configurationFile = await localFolder.CreateFileAsync(ConfigurationFilename, CreationCollisionOption.OpenIfExists);
-					using (Stream stream = await configurationFile.OpenStreamForWriteAsync())
-					{
-						using (TextWriter streamWriter = new StreamWriter(stream))
-						{
-							streamWriter.Write(JsonConvert.SerializeObject(this.applicationSettings, Formatting.Indented));
-						}
-					}
-
-					return false;
-				}
-				else
-				{
-					// Load the configuration settings
-					StorageFile configurationFile = await localFolder.CreateFileAsync(ConfigurationFilename, CreationCollisionOption.OpenIfExists);
-					using (Stream stream = await configurationFile.OpenStreamForReadAsync())
-					{
-						using (TextReader streamReader = new StreamReader(stream))
-						{
-							this.applicationSettings = JsonConvert.DeserializeObject<ApplicationSettings>(streamReader.ReadToEnd());
-						}
-					}
-
-					return true;
-				}
-			}
-			catch (Exception ex)
-			{
-				this.logging.LogMessage("Configuration file " + ConfigurationFilename + " load failed " + ex.Message, LoggingLevel.Error);
-				return false;
-			}
 		}
 
 		private async void Rfm9XDevice_OnReceive(object sender, Rfm9XDevice.OnDataReceivedEventArgs e)
@@ -654,4 +608,3 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		}
 	}
 }
- 
