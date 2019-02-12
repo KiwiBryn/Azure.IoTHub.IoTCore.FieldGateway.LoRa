@@ -73,7 +73,7 @@ The packet format is detailed in these blog posts [@IoTCore](https://blog.devmob
 
 Future proposed enhancements include
   * Device property support (Done Nov 2018)
-  * Azure Device provisioning support
+  * Azure Device provisioning support (PoC V1 Done Dec 2018)
   * Cloud to device messaging
   * OTA device provisioning
   * OTA Data encryption
