@@ -108,7 +108,12 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Azure.IoTHub.IoTCore.FieldGateway.LoRa_TemporaryKey.pfx" />
+    <None Include="Azure.IoTHub.IoTCore.FieldGateway.LoRa_TemporaryKey.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Installers\Dependencies\Arm\Microsoft.NET.CoreFramework.Debug.2.2.appx" />
     <None Include="Installers\Dependencies\Arm\Microsoft.NET.CoreRuntime.2.2.appx" />
     <None Include="Installers\Dependencies\Arm\Microsoft.VCLibs.ARM.Debug.14.00.appx" />

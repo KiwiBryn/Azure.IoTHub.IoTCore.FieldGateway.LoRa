@@ -1,0 +1,7 @@
+{
+  "AzureIoTHubDeviceConnectionString": "Azure IOT Hub connection string",
+  "AzureIoTHubTransportType": "amqp",
+  "SensorIDIsDeviceIDSensorID": false,
+  "Address": "Device address",
+  "Frequency": 915000000.0
+}
