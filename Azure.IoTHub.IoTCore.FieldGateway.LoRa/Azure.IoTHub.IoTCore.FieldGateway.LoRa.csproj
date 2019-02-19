@@ -173,6 +173,7 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Installers\AdafruitLoRaRadioBonnet\" />
     <Folder Include="Installers\UputronicsPiPlusLoRaExpansionBoardCS0\" />
     <Folder Include="Installers\UputronicsPiPlusLoRaExpansionBoardCS1\" />
     <Folder Include="Installers\UputronicsPiZeroLoRaExpansionBoardCS0\" />
