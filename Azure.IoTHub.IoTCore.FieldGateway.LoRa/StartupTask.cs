@@ -160,10 +160,20 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #if ADAFRUIT_RADIO_BONNET
 			appllicationBuildInformation.AddString("Shield", "AdafruitRadioBonnet");
 #endif
-#if BOND_DEVICE
-			appllicationBuildInformation.AddString("BondDevice", "Supported");
+#if CLOUD_DEVICE_BOND
+			appllicationBuildInformation.AddString("Bond", "Supported");
 #else
-			appllicationBuildInformation.AddString("BondDevice", "NotSupported");
+			appllicationBuildInformation.AddString("Bond", "NotSupported");
+#endif
+#if CLOUD_DEVICE_PUSH
+			appllicationBuildInformation.AddString("Push", "Supported");
+#else
+			appllicationBuildInformation.AddString("Push", "NotSupported");
+#endif
+#if CLOUD_DEVICE_PUSH
+			appllicationBuildInformation.AddString("Send", "Supported");
+#else
+			appllicationBuildInformation.AddString("Send", "NotSupported");
 #endif
 			appllicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
 			appllicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
@@ -225,6 +235,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				this.logging.LogMessage("IoT Hub updating reported properties failed " + ex.Message, LoggingLevel.Error);
 			}
 
+			// Wire up the field gateway restart method handler
 			try
 			{
 				azureIoTHubClient.SetMethodHandlerAsync("Restart", RestartAsync, null);
@@ -235,14 +246,41 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				return;
 			}
 
-#if BOND_DEVICE
+#if CLOUD_DEVICE_BOND
+			// Wire up the bond device method handler
 			try
 			{
-				azureIoTHubClient.SetMethodHandlerAsync("BondDevice", BondDeviceAsync, null);
+				azureIoTHubClient.SetMethodHandlerAsync("DeviceBond", this.DeviceBondAsync, null);
 			}
 			catch (Exception ex)
 			{
-				this.logging.LogMessage("Azure IoT Hub Dond Device method handler setup failed " + ex.Message, LoggingLevel.Error);
+				this.logging.LogMessage("Azure IoT Hub Device Bond method handler setup failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
+#endif
+
+#if CLOUD_DEVICE_PUSH
+			// Wire up the push message to device method handler
+			try
+			{
+				this.azureIoTHubClient.SetMethodHandlerAsync("DevicePush", this.DevicePushAsync, null);
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("Azure IoT Hub DevicePush method handler setup failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
+#endif
+
+#if CLOUD_DEVICE_SEND
+			// Wire up the send message to device method handler
+			try
+			{
+				this.azureIoTHubClient.SetMethodHandlerAsync("DeviceSend", this.DeviceSendAsync, null);
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("Azure IoT Hub client DeviceSend method handler setup failed " + ex.Message, LoggingLevel.Error);
 				return;
 			}
 #endif
@@ -474,34 +512,63 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			return new MethodResponse( 200 );
 		}
 
-#if BOND_DEVICE
-		private async Task<MethodResponse> BondDeviceAsync(MethodRequest methodRequest, object userContext)
+#if CLOUD_DEVICE_BOND
+		private async Task<MethodResponse> DeviceBondAsync(MethodRequest methodRequest, object userContext)
 		{
-			LoggingFields deviceData = new LoggingFields();
+			LoggingFields bondLoggingInfo = new LoggingFields();
 
 			try
 			{
 				dynamic json = JValue.Parse(methodRequest.DataAsJson);
 
-				string deviceIdBcd = json.DeviceAddress;
+				string deviceAddrressBcd = json.DeviceAddress;
+				bondLoggingInfo.AddString("DeviceID", deviceAddrressBcd);
+				Debug.WriteLine($"DeviceBondAsync DeviceAddress {deviceAddrressBcd}");
 
-				deviceData.AddString("DeviceID", deviceIdBcd);
+				byte[] deviceAddressBytes = deviceAddrressBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+				bondLoggingInfo.AddInt32("DeviceAddressBytes Length", deviceAddressBytes.Length);
+				Debug.WriteLine($"DeviceBondAsync DeviceAddressLength {deviceAddressBytes.Length}");
 
-				Debug.WriteLine($"BondDeviceAsync DeviceID {deviceIdBcd}");
+				if (deviceAddressBytes.Length > AddressLengthMaximum)
+				{
+					this.logging.LogEvent("DeviceBondAsync failed device address bytes Length", bondLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(400);
+				}
 
-				byte[] addressBytes = deviceIdBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
-				byte[] payloadBytes = { 1 };
+				byte[] payloadBytes = {};
 
-				rfm9XDevice.Send(addressBytes, payloadBytes);
+				rfm9XDevice.Send(deviceAddressBytes, payloadBytes);
 
-				this.logging.LogEvent("Bond Device settings", deviceData, LoggingLevel.Information);
+				this.logging.LogEvent("DeviceBondAsync success", bondLoggingInfo, LoggingLevel.Information);
 			}
 			catch (Exception ex)
 			{
-				this.logging.LogMessage("BondDeviceAsync failed " + ex.Message, LoggingLevel.Error);
-
+				bondLoggingInfo.AddString("Exception", ex.ToString());
+				this.logging.LogEvent("DeviceBondAsync failed " + ex.Message, bondLoggingInfo, LoggingLevel.Error);
 				return new MethodResponse(400);
 			}
+
+			return new MethodResponse(200);
+		}
+#endif
+
+#if CLOUD2DEVICE_SEND
+		private async Task<MethodResponse> DeviceSendAsync(MethodRequest methodRequest, object userContext)
+		{
+			LoggingFields sendLoggingInfo = new LoggingFields();
+
+			this.logging.LogEvent("Send BCD initiated");
+
+			return new MethodResponse(200);
+		}
+#endif
+
+#if CLOUD2DEVICE_PUSH
+		private async Task<MethodResponse> DevicePushBcdAsync(MethodRequest methodRequest, object userContext)
+		{
+			LoggingFields pushLoggingInfo = new LoggingFields();
+
+			this.logging.LogEvent("Push BCD initiated");
 
 			return new MethodResponse(200);
 		}
