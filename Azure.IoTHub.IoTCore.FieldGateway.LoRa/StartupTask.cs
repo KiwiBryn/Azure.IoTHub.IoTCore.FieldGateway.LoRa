@@ -24,6 +24,7 @@
 namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 {
 	using System;
+	using System.Collections.Concurrent;
 	using System.ComponentModel;
 	using System.Diagnostics;
 	using System.Globalization;
@@ -105,6 +106,9 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		private readonly LoggingChannel logging = new LoggingChannel("devMobile Azure IotHub LoRa Field Gateway", null, new Guid("4bd2826e-54a1-4ba9-bf63-92b73ea1ac4a"));
 		private ApplicationSettings applicationSettings = null;
 		private DeviceClient azureIoTHubClient = null;
+#if CLOUD2DEVICE_SEND
+		private ConcurrentDictionary<byte[], byte[]> sendMessageQueue = new ConcurrentDictionary<byte[], byte[]>();
+#endif
 		private BackgroundTaskDeferral deferral = null;
 
 		public void Run(IBackgroundTaskInstance taskInstance)
@@ -422,14 +426,6 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				return;
 			}
 
-			// Chop up the CSV text
-			string[] sensorReadings = messageText.Split(sensorReadingSeparators, StringSplitOptions.RemoveEmptyEntries);
-			if (sensorReadings.Length < 1)
-			{
-				this.logging.LogMessage("Payload contains no sensor readings", LoggingLevel.Warning);
-				return;
-			}
-
 			JObject telemetryDataPoint = new JObject(); // This could be simplified but for field gateway will use this style
 			LoggingFields sensorData = new LoggingFields();
 
@@ -441,6 +437,15 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			sensorData.AddInt32("PacketRSSI", e.PacketRssi);
 			telemetryDataPoint.Add("RSSI", e.Rssi);
 			sensorData.AddInt32("RSSI", e.Rssi);
+
+#if PAYLOAD_CSV
+			// Chop up the CSV text
+			string[] sensorReadings = messageText.Split(sensorReadingSeparators, StringSplitOptions.RemoveEmptyEntries);
+			if (sensorReadings.Length < 1)
+			{
+				this.logging.LogMessage("Payload contains no sensor readings", LoggingLevel.Warning);
+				return;
+			}
 
 			// Chop up each sensor read into an ID & value
 			foreach (string sensorReading in sensorReadings)
@@ -483,6 +488,22 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			}
 
 			this.logging.LogEvent("Sensor readings", sensorData, LoggingLevel.Information);
+#endif
+
+#if PAYLOAD_BINARY_BCD
+	telemetryDataPoint.Add("Payload", messageBcdText);
+#endif
+
+#if CLOUD2DEVICE_SEND
+			// see if there are any outstand messages to reply to device with
+			byte[] responseMessage;
+
+			if (sendMessageQueue.TryGetValue( e.Address, out responseMessage))
+			{
+				rfm9XDevice.Send(e.Address, responseMessage);
+				this.logging.LogMessage("Response message sent", LoggingLevel.Information);
+			}
+#endif
 
 			try
 			{
@@ -501,11 +522,18 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 		private async Task<MethodResponse> RestartAsync(MethodRequest methodRequest, object userContext)
 		{
-			this.logging.LogMessage("Restart initiated", LoggingLevel.Information);
+			LoggingFields restartLoggingInfo = new LoggingFields();
+
+#if CLOUD2DEVICE_SEND
+			restartLoggingInfo.AddInt32("Send message queue count", sendMessageQueue.Count);
+#endif
+			restartLoggingInfo.AddTimeSpan("Device restart period", DeviceRestartPeriod);
 
 			// Disconnect the transmit and receive callbacks, once messages Send & Push need to consider what todo with queued outbound messages
 			rfm9XDevice.OnReceive -= Rfm9XDevice_OnReceive;
 			rfm9XDevice.OnTransmit -= Rfm9XDevice_OnTransmit;
+
+			this.logging.LogEvent("Restart initiated", restartLoggingInfo, LoggingLevel.Information);
 
 			ShutdownManager.BeginShutdown(ShutdownKind.Restart, DeviceRestartPeriod);
 
@@ -521,20 +549,21 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			{
 				dynamic json = JValue.Parse(methodRequest.DataAsJson);
 
-				string deviceAddrressBcd = json.DeviceAddress;
-				bondLoggingInfo.AddString("DeviceID", deviceAddrressBcd);
-				Debug.WriteLine($"DeviceBondAsync DeviceAddress {deviceAddrressBcd}");
+				string deviceAddressBcd = json.DeviceAddress;
+				bondLoggingInfo.AddString("DeviceAddressBCD", deviceAddressBcd);
+				Debug.WriteLine($"DeviceBondAsync DeviceAddressBCD {deviceAddressBcd}");
 
-				byte[] deviceAddressBytes = deviceAddrressBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+				byte[] deviceAddressBytes = deviceAddressBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
 				bondLoggingInfo.AddInt32("DeviceAddressBytes Length", deviceAddressBytes.Length);
 				Debug.WriteLine($"DeviceBondAsync DeviceAddressLength {deviceAddressBytes.Length}");
 
 				if (deviceAddressBytes.Length > AddressLengthMaximum)
 				{
-					this.logging.LogEvent("DeviceBondAsync failed device address bytes Length", bondLoggingInfo, LoggingLevel.Error);
-					return new MethodResponse(400);
+					this.logging.LogEvent("DeviceBondAsync failed device address bytes length", bondLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(414);
 				}
 
+				// Empty payload for bond message
 				byte[] payloadBytes = {};
 
 				rfm9XDevice.Send(deviceAddressBytes, payloadBytes);
@@ -544,7 +573,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			catch (Exception ex)
 			{
 				bondLoggingInfo.AddString("Exception", ex.ToString());
-				this.logging.LogEvent("DeviceBondAsync failed " + ex.Message, bondLoggingInfo, LoggingLevel.Error);
+				this.logging.LogEvent("DeviceBondAsync exception", bondLoggingInfo, LoggingLevel.Error);
 				return new MethodResponse(400);
 			}
 
@@ -559,16 +588,106 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 			this.logging.LogEvent("Send BCD initiated");
 
+			try
+			{
+				// Initially use a dynamic maybe use a decorated class in future
+				dynamic json = JValue.Parse(methodRequest.DataAsJson);
+
+				string deviceAddressBcd = json.DeviceAddress;
+				sendLoggingInfo.AddString("DeviceAddressBCD", deviceAddressBcd);
+				Debug.WriteLine($"DeviceSendAsync DeviceAddressBCD {deviceAddressBcd}");
+
+				byte[] deviceAddressBytes = deviceAddressBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+				sendLoggingInfo.AddInt32("DeviceAddressBytes Length", deviceAddressBytes.Length);
+				Debug.WriteLine($"DeviceSendAsync DeviceAddressLength {deviceAddressBytes.Length}");
+
+				if (deviceAddressBytes.Length > AddressLengthMaximum)
+				{
+					this.logging.LogEvent("DeviceSendAsync failed device address bytes length", sendLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(414);
+				}
+
+				string messagedBcd = json.DevicePayload;
+				sendLoggingInfo.AddString("MessageBCD", messagedBcd);
+
+				byte[] messageBytes = messagedBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray(); // changed the '-' to ' '
+				sendLoggingInfo.AddInt32("MessageBytesLength", messageBytes.Length);
+				Debug.WriteLine($"DeviceSendAsync DeviceAddress:{deviceAddressBcd} Payload:{messagedBcd}");
+
+				if (messageBytes.Length > MessageLengthMaximum)
+				{
+					this.logging.LogEvent("DeviceSendAsync failed payload Length", sendLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(413);
+				}
+
+				if ( sendMessageQueue.TryAdd(deviceAddressBytes, messageBytes))
+				{
+					this.logging.LogEvent("DeviceSendAsync failed message already queued", sendLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(409);
+				}
+
+				this.logging.LogEvent("DeviceSendAsync success", sendLoggingInfo, LoggingLevel.Information);
+			}
+			catch (Exception ex)
+			{
+				sendLoggingInfo.AddString("Exception", ex.ToString());
+				this.logging.LogEvent("DeviceSendAsync failed exception", sendLoggingInfo, LoggingLevel.Error);
+				return new MethodResponse(400);
+			}
+
 			return new MethodResponse(200);
 		}
 #endif
 
 #if CLOUD2DEVICE_PUSH
-		private async Task<MethodResponse> DevicePushBcdAsync(MethodRequest methodRequest, object userContext)
+		private async Task<MethodResponse> DevicePushAsync(MethodRequest methodRequest, object userContext)
 		{
 			LoggingFields pushLoggingInfo = new LoggingFields();
 
 			this.logging.LogEvent("Push BCD initiated");
+
+			try
+			{
+				// Initially use a dynamic maybe use a decorated class in future
+				dynamic json = JValue.Parse(methodRequest.DataAsJson);
+
+				string deviceAddressBcd = json.DeviceAddress;
+				pushLoggingInfo.AddString("DeviceAddressBCD", deviceAddressBcd);
+				Debug.WriteLine($"DevicePushAsync DeviceAddressBCD {deviceAddressBcd}");
+
+				byte[] deviceAddressBytes = deviceAddressBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+				pushLoggingInfo.AddInt32("DeviceAddressBytes Length", deviceAddressBytes.Length);
+				Debug.WriteLine($"DevicePushAsync DeviceAddressLength {deviceAddressBytes.Length}");
+
+				if (deviceAddressBytes.Length > AddressLengthMaximum)
+				{
+					this.logging.LogEvent("DevicePushAsync failed device address bytes length", pushLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(414);
+				}
+
+				string messagedBcd = json.DevicePayload;
+				pushLoggingInfo.AddString("MessageBCD", messagedBcd);
+
+				byte[] messageBytes = messagedBcd.Split('-').Select(x => byte.Parse(x, NumberStyles.HexNumber)).ToArray(); // changed the '-' to ' '
+				pushLoggingInfo.AddInt32("MessageBytesLength", messageBytes.Length);
+				Debug.WriteLine($"DevicePushAsync DeviceAddress:{deviceAddressBcd} Payload:{messagedBcd}");
+
+				if (messageBytes.Length > MessageLengthMaximum)
+				{
+					this.logging.LogEvent("DevicePushAsync failed payload Length", pushLoggingInfo, LoggingLevel.Error);
+					return new MethodResponse(413);
+				}
+
+				rfm9XDevice.Send(deviceAddressBytes, messageBytes);
+
+				this.logging.LogEvent("DevicePushAsync success", pushLoggingInfo, LoggingLevel.Information);
+			}
+			catch (Exception ex)
+			{
+				pushLoggingInfo.AddString("Exception", ex.ToString());
+				this.logging.LogEvent("DevicePushAsync failed exception", pushLoggingInfo, LoggingLevel.Error);
+				return new MethodResponse(400);
+			}
 
 			return new MethodResponse(200);
 		}
