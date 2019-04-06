@@ -35,6 +35,10 @@ RPIPlus Shield from [@Uputronics](https://store.uputronics.com/index.php?route=p
 
 ![Raspberry Pi+ LoRa(TM) Expansion Board](UputronicsRPIPlusShield.jpg)
 
+LoRa Radio Bonnet from [@Adafruit](https://www.adafruit.com/product/4074) 
+
+![Adafruit LoRa(TM)Radio Bonnet with OLED](AdaFruitLoRaBonnet.jpg)
+
 I have sample client applications which show how to send telemetry from
 * [@Arduino](https://blog.devmobile.co.nz/2018/09/05/arduino-payload-addressing-client/) using Dragino, elecrow and MakerFabs shields
 * [@Netduino](https://blog.devmobile.co.nz/2018/09/17/netduino-lora-radio-433-868-915-mhz-payload-addressing-client/) using Dragino, elecrow and MakerFabs shields
