@@ -132,60 +132,60 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			}
 
 			// Log the Application build, shield information etc.
-			LoggingFields appllicationBuildInformation = new LoggingFields();
+			LoggingFields applicationBuildInformation = new LoggingFields();
 #if DRAGINO
-			appllicationBuildInformation.AddString("Shield", "DraginoLoRaGPSHat");
+			applicationBuildInformation.AddString("Shield", "DraginoLoRaGPSHat");
 #endif
 #if ELECROW
-			appllicationBuildInformation.AddString("Shield", "ElecrowRFM95IoTBoard");
+			applicationBuildInformation.AddString("Shield", "ElecrowRFM95IoTBoard");
 #endif
 #if M2M
-			appllicationBuildInformation.AddString("Shield", "M2M1ChannelLoRaWanGatewayShield");
+			applicationBuildInformation.AddString("Shield", "M2M1ChannelLoRaWanGatewayShield");
 #endif
 #if ELECTRONIC_TRICKS
-			appllicationBuildInformation.AddString("Shield", "ElectronicTricksLoRaLoRaWANShield");
+			applicationBuildInformation.AddString("Shield", "ElectronicTricksLoRaLoRaWANShield");
 #endif
 #if UPUTRONICS_RPIZERO_CS0
-			appllicationBuildInformation.AddString("Shield", "UputronicsPiZeroLoRaExpansionBoardCS0");
+			applicationBuildInformation.AddString("Shield", "UputronicsPiZeroLoRaExpansionBoardCS0");
 #endif
 #if UPUTRONICS_RPIZERO_CS1
-			appllicationBuildInformation.AddString("Shield", "UputronicsPiZeroLoRaExpansionBoardCS1");
+			applicationBuildInformation.AddString("Shield", "UputronicsPiZeroLoRaExpansionBoardCS1");
 #endif
 #if UPUTRONICS_RPIPLUS_CS0
-			appllicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS0");
+			applicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS0");
 #endif
 #if UPUTRONICS_RPIPLUS_CS1
-			appllicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS1");
+			applicationBuildInformation.AddString("Shield", "UputronicsPiPlusLoRaExpansionBoardCS1");
 #endif
 #if ADAFRUIT_RADIO_BONNET
-			appllicationBuildInformation.AddString("Shield", "AdafruitRadioBonnet");
+			applicationBuildInformation.AddString("Shield", "AdafruitRadioBonnet");
 #endif
 #if CLOUD_DEVICE_BOND
-			appllicationBuildInformation.AddString("Bond", "Supported");
+			applicationBuildInformation.AddString("Bond", "Supported");
 #else
-			appllicationBuildInformation.AddString("Bond", "NotSupported");
+			applicationBuildInformation.AddString("Bond", "NotSupported");
 #endif
 #if CLOUD_DEVICE_PUSH
-			appllicationBuildInformation.AddString("Push", "Supported");
+			applicationBuildInformation.AddString("Push", "Supported");
 #else
-			appllicationBuildInformation.AddString("Push", "NotSupported");
+			applicationBuildInformation.AddString("Push", "NotSupported");
 #endif
-#if CLOUD_DEVICE_PUSH
-			appllicationBuildInformation.AddString("Send", "Supported");
+#if CLOUD_DEVICE_SEND
+			applicationBuildInformation.AddString("Send", "Supported");
 #else
-			appllicationBuildInformation.AddString("Send", "NotSupported");
+			applicationBuildInformation.AddString("Send", "NotSupported");
 #endif
-			appllicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
-			appllicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
-			appllicationBuildInformation.AddString("MachineName", Environment.MachineName);
+			applicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
+			applicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
+			applicationBuildInformation.AddString("MachineName", Environment.MachineName);
 
 			// This is from the application manifest 
 			Package package = Package.Current;
 			PackageId packageId = package.Id;
 			PackageVersion version = packageId.Version;
 
-			appllicationBuildInformation.AddString("ApplicationVersion", string.Format($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}"));
-			this.logging.LogEvent("Application starting", appllicationBuildInformation, LoggingLevel.Information);
+			applicationBuildInformation.AddString("ApplicationVersion", string.Format($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}"));
+			this.logging.LogEvent("Application starting", applicationBuildInformation, LoggingLevel.Information);
 
 			// Log the Azure connection string and associated settings
 			LoggingFields azureIoTHubSettings = new LoggingFields();
@@ -680,7 +680,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				sendLoggingInfo.AddInt32("MessageBytesLength", messageBytes.Length);
 				Debug.WriteLine($"DeviceSendAsync DeviceAddress:{deviceAddressBcd} Payload:{messagedBcd}");
 
-				if (messageBytes.Length > MessageLengthMaximum)
+				if ((messageBytes.Length < Rfm9XDevice.MessageLengthMinimum) || (messageBytes.Length > Rfm9XDevice.MessageLengthMaximum))
 				{
 					this.logging.LogEvent("DeviceSendAsync failed payload Length", sendLoggingInfo, LoggingLevel.Error);
 					return new MethodResponse(413);
@@ -738,7 +738,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 				pushLoggingInfo.AddInt32("MessageBytesLength", messageBytes.Length);
 				Debug.WriteLine($"DevicePushAsync DeviceAddress:{deviceAddressBcd} Payload:{messagedBcd}");
 
-				if (messageBytes.Length > MessageLengthMaximum)
+				if ((messageBytes.Length < Rfm9XDevice.MessageLengthMinimum) || (messageBytes.Length > Rfm9XDevice.MessageLengthMaximum))
 				{
 					this.logging.LogEvent("DevicePushAsync failed payload Length", pushLoggingInfo, LoggingLevel.Error);
 					return new MethodResponse(413);
