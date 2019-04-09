@@ -175,6 +175,19 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #else
 			applicationBuildInformation.AddString("Send", "NotSupported");
 #endif
+#if PAYLOAD_TEXT
+			applicationBuildInformation.AddString("PayloadProcessor", "Text");
+#endif
+#if PAYLOAD_TEXT_COMA_SEPARATED_VALUES
+			applicationBuildInformation.AddString("PayloadProcessor", "ComaSeperatedValues");
+#endif
+#if PAYLOAD_BINARY_BINARY_CODED_DECIMAL
+			applicationBuildInformation.AddString("PayloadProcessor", "BinaryCodedDecimal");
+#endif
+#if PAYLOAD_BINARY_CAYENNE_LOW_POWER_PAYLOAD
+			applicationBuildInformation.AddString("PayloadProcessor", "CayenneLowPowerPayload");
+#endif
+
 			applicationBuildInformation.AddString("Timezone", TimeZoneSettings.CurrentTimeZoneDisplayName);
 			applicationBuildInformation.AddString("OSVersion", Environment.OSVersion.VersionString);
 			applicationBuildInformation.AddString("MachineName", Environment.MachineName);
@@ -366,16 +379,16 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			Debug.WriteLine(@"{0:HH:mm:ss}-RX From {1} PacketSnr {2:0.0} Packet RSSI {3}dBm RSSI {4}dBm = {5} byte message", DateTime.UtcNow, BitConverter.ToString(e.Address), e.PacketSnr, e.PacketRssi, e.Rssi, e.Data.Length);
 #endif
 
-#if PAYLOAD_COMA_SEPARATED_VALUES
+#if PAYLOAD_TEXT
+			await PayloadText(azureIoTHubClient, e);
+#endif
+
+#if PAYLOAD_TEXT_COMA_SEPARATED_VALUES
 			await PayloadCommaSeparatedValues(azureIoTHubClient, e);
 #endif
 
 #if PAYLOAD_BINARY_BINARY_CODED_DECIMAL
 			await PayloadBinaryCodedDecimal(azureIoTHubClient, e);
-#endif
-
-#if PAYLOAD_BINARY_TEXT
-			await PayloadText(azureIoTHubClient, e);
 #endif
 
 #if PAYLOAD_BINARY_CAYENNE_LOW_POWER_PAYLOAD
@@ -394,7 +407,59 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #endif
 		}
 
-#if PAYLOAD_COMA_SEPARATED_VALUES
+#if PAYLOAD_TEXT
+		async Task PayloadText(DeviceClient azureIoTHubClient, Rfm9XDevice.OnDataReceivedEventArgs e)
+		{
+			JObject telemetryDataPoint = new JObject();
+			LoggingFields processLoggingFields = new LoggingFields();
+
+			processLoggingFields.AddString("PacketSNR", e.PacketSnr.ToString("F1"));
+			telemetryDataPoint.Add("PacketSNR", e.PacketSnr.ToString("F1"));
+			processLoggingFields.AddInt32("PacketRSSI", e.PacketRssi);
+			telemetryDataPoint.Add("PacketRSSI", e.PacketRssi);
+			processLoggingFields.AddInt32("RSSI", e.Rssi);
+			telemetryDataPoint.Add("RSSI", e.Rssi);
+
+			string addressBcdText = BitConverter.ToString(e.Address);
+			processLoggingFields.AddInt32("DeviceAddressLength", e.Address.Length);
+			processLoggingFields.AddString("DeviceAddressBCD", addressBcdText);
+			telemetryDataPoint.Add("DeviceAddressBCD", addressBcdText);
+
+			string messageBcdText = BitConverter.ToString(e.Data);
+			processLoggingFields.AddInt32("MessageLength", e.Data.Length);
+			processLoggingFields.AddString("MessageBCD", messageBcdText);
+
+			try
+			{
+				string messageText = UTF8Encoding.UTF8.GetString(e.Data);
+				processLoggingFields.AddString("MessageText", messageText);
+				telemetryDataPoint.Add("Payload", messageText);
+			}
+			catch (Exception)
+			{
+				this.logging.LogEvent("PayloadProcess failure converting payload to text", processLoggingFields, LoggingLevel.Warning);
+				return;
+			}
+
+			try
+			{
+				using (Message message = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(telemetryDataPoint))))
+				{
+					Debug.WriteLine(" {0:HH:mm:ss} AzureIoTHubClient SendEventAsync start", DateTime.UtcNow);
+					await this.azureIoTHubClient.SendEventAsync(message);
+					Debug.WriteLine(" {0:HH:mm:ss} AzureIoTHubClient SendEventAsync finish", DateTime.UtcNow);
+				}
+				this.logging.LogEvent("SendEventAsync Text payload", processLoggingFields, LoggingLevel.Information);
+			}
+			catch (Exception ex)
+			{
+				processLoggingFields.AddString("Exception", ex.ToString());
+				this.logging.LogEvent("SendEventAsync Text payload", processLoggingFields, LoggingLevel.Error);
+			}
+		}
+#endif
+
+#if PAYLOAD_TEXT_COMA_SEPARATED_VALUES
 		private async Task PayloadCommaSeparatedValues(DeviceClient azureIoTHubClient, Rfm9XDevice.OnDataReceivedEventArgs e)
 		{
 			JObject telemetryDataPoint = new JObject();
@@ -487,59 +552,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		}
 #endif
 
-#if PAYLOAD_TEXT
-		async Task PayloadBinaryCodedDecimal(DeviceClient azureIoTHubClient, Rfm9XDevice.OnDataReceivedEventArgs e)
-		{
-			JObject telemetryDataPoint = new JObject();
-			LoggingFields processLoggingFields = new LoggingFields();
-
-			processLoggingFields.AddString("PacketSNR", e.PacketSnr.ToString("F1"));
-			telemetryDataPoint.Add("PacketSNR", e.PacketSnr.ToString("F1"));
-			processLoggingFields.AddInt32("PacketRSSI", e.PacketRssi);
-			telemetryDataPoint.Add("PacketRSSI", e.PacketRssi);
-			processLoggingFields.AddInt32("RSSI", e.Rssi);
-			telemetryDataPoint.Add("RSSI", e.Rssi);
-
-			string addressBcdText = BitConverter.ToString(e.Address);
-			processLoggingFields.AddInt32("DeviceAddressLength", e.Address.Length);
-			processLoggingFields.AddString("DeviceAddressBCD", addressBcdText);
-			telemetryDataPoint.Add("DeviceAddressBCD", addressBcdText);
-
-			string messageBcdText = BitConverter.ToString(e.Data);
-			processLoggingFields.AddInt32("MessageLength", e.Data.Length);
-			processLoggingFields.AddString("MessageBCD", messageBcdText);
-
-			try
-			{
-				string messageText = UTF8Encoding.UTF8.GetString(e.Data);
-				processLoggingFields.AddString("MessageText", messageText);
-				telemetryDataPoint.Add("Payload", messageText);
-			}
-			catch (Exception)
-			{
-				this.logging.LogEvent("PayloadProcess failure converting payload to text", processLoggingFields, LoggingLevel.Warning);
-				return;
-			}
-
-			try
-			{
-				using (Message message = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(telemetryDataPoint))))
-				{
-					Debug.WriteLine(" {0:HH:mm:ss} AzureIoTHubClient SendEventAsync start", DateTime.UtcNow);
-					await this.azureIoTHubClient.SendEventAsync(message);
-					Debug.WriteLine(" {0:HH:mm:ss} AzureIoTHubClient SendEventAsync finish", DateTime.UtcNow);
-				}
-				this.logging.LogEvent("SendEventAsync BCD payload", processLoggingFields, LoggingLevel.Information);
-			}
-			catch (Exception ex)
-			{
-				processLoggingFields.AddString("Exception", ex.ToString());
-				this.logging.LogEvent("SendEventAsync BCD payload", processLoggingFields, LoggingLevel.Error);
-			}
-		}
-#endif
-
-#if PAYLOAD_BINARY_BINARY_CODED_DECIMAL
+#if PAYLOAD_TEXT_BINARY_CODED_DECIMAL
 		async Task PayloadText(DeviceClient azureIoTHubClient, Rfm9XDevice.OnDataReceivedEventArgs e)
 		{
 			JObject telemetryDataPoint = new JObject();
