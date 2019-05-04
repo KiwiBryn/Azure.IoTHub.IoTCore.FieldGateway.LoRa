@@ -32,6 +32,8 @@ namespace devMobile.IoT.Rfm9x
 	public sealed class Rfm9XDevice
 	{
 		public delegate void OnDataReceivedHandler(byte[] data);
+		public const byte MessageLengthMinimum = 0;
+		public const byte MessageLengthMaximum = 128;
 #if ADDRESSED_MESSAGES_PAYLOAD
 		public const byte AddressHeaderLength = 1;
 		public const byte AddressLengthMinimum = 1;
@@ -833,7 +835,7 @@ namespace devMobile.IoT.Rfm9x
 			Debug.Assert(addressBytes.Length > AddressLengthMinimum);
 			Debug.Assert(addressBytes.Length < AddressLengthMaximum);
 			Debug.Assert(messageBytes != null);
-			Debug.Assert(messageBytes.Length > 0);
+			Debug.Assert(messageBytes.Length >= MessageLengthMinimum);
 
 			// construct payload from lengths and addresses
 			byte[] payLoadBytes = new byte[AddressHeaderLength + addressBytes.Length + DeviceAddress.Length + messageBytes.Length];
@@ -877,7 +879,8 @@ namespace devMobile.IoT.Rfm9x
 #endif
 		{
 			Debug.Assert(messageBytes != null);
-			Debug.Assert(messageBytes.Length > 0);
+			Debug.Assert(messageBytes.Length >= MessageLengthMinimum);
+			Debug.Assert(messageBytes.Length <= MessageLengthMaximum);
 
 			lock (Rfm9XRegFifoLock)
 			{
