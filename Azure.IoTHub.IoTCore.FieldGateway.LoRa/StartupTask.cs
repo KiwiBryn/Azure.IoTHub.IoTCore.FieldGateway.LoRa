@@ -29,8 +29,10 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 #endif
 	using System.ComponentModel;
 	using System.Diagnostics;
+#if CLOUD_DEVICE_BOND || CLOUD_DEVICE_PUSH || CLOUD_DEVICE_SEND
 	using System.Globalization;
 	using System.Linq;
+#endif
 	using System.Text;
 	using System.Threading.Tasks;
 
