@@ -630,7 +630,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			{
 				dynamic json = JValue.Parse(methodRequest.DataAsJson);
 
-				string deviceAddressBcd = json.DeviceAddress;
+				string deviceAddressBcd = json.DeviceAddressBCD;
 				bondLoggingInfo.AddString("DeviceAddressBCD", deviceAddressBcd);
 				Debug.WriteLine($"DeviceBondAsync DeviceAddressBCD {deviceAddressBcd}");
 
