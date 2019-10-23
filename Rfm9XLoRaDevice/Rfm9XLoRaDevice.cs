@@ -718,9 +718,6 @@ namespace devMobile.IoT.Rfm9x
 
 				byte numberOfBytes = this.RegisterManager.ReadByte((byte)Registers.RegRxNbBytes);
 
-				// Allocate buffer for message
-				payloadBytes = new byte[numberOfBytes];
-
 				payloadBytes = this.RegisterManager.Read((byte)Registers.RegFifo, numberOfBytes);
 			}
 
