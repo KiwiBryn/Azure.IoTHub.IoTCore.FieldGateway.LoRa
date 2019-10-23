@@ -27,11 +27,13 @@
     <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
+    <PackageCertificateThumbprint>73915F1CDC308787B04F7378532865E6CAE62C7D</PackageCertificateThumbprint>
+    <AppxPackageDir>C:\Projects\Azure.IoTHub.IoTCore.FieldGateway.LoRa\Azure.IoTHub.IoTCore.FieldGateway.LoRa\Installers\DraginoLoRaGPSHat\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;CODE_ANALYSIS;DRAGINO;PAYLOAD_TEXT_COMA_SEPARATED_VALUES</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;DRAGINO;PAYLOAD_TEXT_COMA_SEPARATED_VALUES;CODE_ANALYSIS</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -119,6 +121,7 @@
     <None Include="Installers\Dependencies\Arm\Microsoft.NET.CoreRuntime.2.2.appx" />
     <None Include="Installers\Dependencies\Arm\Microsoft.VCLibs.ARM.Debug.14.00.appx" />
     <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.13.0_arm_Debug.appxbundle" />
+    <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.19.0_arm_Debug.appxbundle" />
     <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
     <None Include="Installers\DraginoLoRaGPSHat\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.9.0_arm_Debug.appxbundle" />
     <None Include="Installers\ElecrowRFM95IoTBoard\Azure.IoTHub.IoTCore.FieldGateway.LoRa_1.0.8.0_arm_Debug.appxbundle" />
@@ -153,13 +156,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Amqp">
-      <Version>2.4.2</Version>
+      <Version>2.4.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Azure.Devices.Client">
-      <Version>1.19.0</Version>
+      <Version>1.21.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.8</Version>
+      <Version>6.2.9</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
