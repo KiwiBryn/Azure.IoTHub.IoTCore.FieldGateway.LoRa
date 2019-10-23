@@ -500,7 +500,7 @@ namespace devMobile.IoT.Rfm9x
 			RxDoneIgnoreIfCrcMissing = rxDoneignoreIfCrcMissing;
 			RxDoneIgnoreIfCrcInvalid = rxDoneignoreIfCrcInvalid;
 
-			// If the HopeRF module doesn't have the reset pin connected (e.g. uputroncis) not point in resetting it
+			// If the HopeRF module doesn't have the reset pin connected (e.g. uputronics) not point in resetting it
 			if (ResetGpioPin != null)
 			{
 				// Strobe Reset pin briefly to factory reset SX127X chip
@@ -721,10 +721,7 @@ namespace devMobile.IoT.Rfm9x
 				// Allocate buffer for message
 				payloadBytes = new byte[numberOfBytes];
 
-				for (int i = 0; i < numberOfBytes; i++)
-				{
-					payloadBytes[i] = this.RegisterManager.ReadByte((byte)Registers.RegFifo);
-				}
+				payloadBytes = this.RegisterManager.Read((byte)Registers.RegFifo, numberOfBytes);
 			}
 
 #if ADDRESSED_MESSAGES_PAYLOAD
@@ -889,10 +886,7 @@ namespace devMobile.IoT.Rfm9x
 				// Set the Register Fifo address pointer
 				this.RegisterManager.WriteByte((byte)Registers.RegFifoAddrPtr, 0x0);
 
-				foreach (byte b in messageBytes)
-				{
-					this.RegisterManager.WriteByte((byte)Registers.RegFifo, b);
-				}
+				this.RegisterManager.Write((byte)Registers.RegFifo, messageBytes);
 
 				// Set the length of the message in the fifo
 				this.RegisterManager.WriteByte((byte)Registers.RegPayloadLength, (byte)messageBytes.Length);
