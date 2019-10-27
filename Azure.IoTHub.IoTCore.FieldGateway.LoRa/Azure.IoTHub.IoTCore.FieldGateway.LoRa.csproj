@@ -27,7 +27,7 @@
     <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
-    <PackageCertificateThumbprint>73915F1CDC308787B04F7378532865E6CAE62C7D</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>0D5EAE1B21FE5A1FF3EA50D5ED8CCD6CF5B0A226</PackageCertificateThumbprint>
     <AppxPackageDir>C:\Projects\Azure.IoTHub.IoTCore.FieldGateway.LoRa\Azure.IoTHub.IoTCore.FieldGateway.LoRa\Installers\DraginoLoRaGPSHat\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
