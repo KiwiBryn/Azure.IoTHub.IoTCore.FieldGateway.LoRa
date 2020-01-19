@@ -24,7 +24,7 @@
 namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 {
 	using System;
-#if CLOUD2DEVICE_SEND
+#if CLOUD_DEVICE_SEND
 	using System.Collections.Concurrent;
 #endif
 	using System.ComponentModel;
@@ -104,7 +104,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		private readonly LoggingChannel logging = new LoggingChannel("devMobile Azure IotHub LoRa Field Gateway", null, new Guid("4bd2826e-54a1-4ba9-bf63-92b73ea1ac4a"));
 		private ApplicationSettings applicationSettings = null;
 		private DeviceClient azureIoTHubClient = null;
-#if CLOUD2DEVICE_SEND
+#if CLOUD_DEVICE_SEND
 		private ConcurrentDictionary<byte[], byte[]> sendMessageQueue = new ConcurrentDictionary<byte[], byte[]>();
 #endif
 		private BackgroundTaskDeferral deferral = null;
@@ -397,7 +397,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 			await PayloadProcessCayenneLowPowerPayload(azureIoTHubClient, e);
 #endif
 
-#if CLOUD2DEVICE_SEND
+#if CLOUD_DEVICE_SEND
 			// see if there are any outstand messages to reply to device with
 			byte[] responseMessage;
 
@@ -544,12 +544,12 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 					await this.azureIoTHubClient.SendEventAsync(message);
 					Debug.WriteLine(" {0:HH:mm:ss} AzureIoTHubClient SendEventAsync finish", DateTime.UtcNow);
 				}
-				this.logging.LogEvent("SendEventAsync CSV payload", processLoggingFields, LoggingLevel.Information);
+				this.logging.LogEvent("SendEventAsync JSON payload", processLoggingFields, LoggingLevel.Information);
 			}
 			catch (Exception ex)
 			{
 				processLoggingFields.AddString("Exception", ex.ToString());
-				this.logging.LogEvent("SendEventAsync CSV payload", processLoggingFields, LoggingLevel.Error);
+				this.logging.LogEvent("SendEventAsync JSON payload", processLoggingFields, LoggingLevel.Error);
 			}
 		}
 #endif
@@ -605,7 +605,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		{
 			LoggingFields restartLoggingInfo = new LoggingFields();
 
-#if CLOUD2DEVICE_SEND
+#if CLOUD_DEVICE_SEND
 			restartLoggingInfo.AddInt32("Send message queue count", sendMessageQueue.Count);
 #endif
 			restartLoggingInfo.AddTimeSpan("Device restart period", DeviceRestartPeriod);
@@ -662,7 +662,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		}
 #endif
 
-#if CLOUD2DEVICE_SEND
+#if CLOUD_DEVICE_SEND
 		private async Task<MethodResponse> DeviceSendAsync(MethodRequest methodRequest, object userContext)
 		{
 			LoggingFields sendLoggingInfo = new LoggingFields();
@@ -720,7 +720,7 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		}
 #endif
 
-#if CLOUD2DEVICE_PUSH
+#if CLOUD_DEVICE_PUSH
 		private async Task<MethodResponse> DevicePushAsync(MethodRequest methodRequest, object userContext)
 		{
 			LoggingFields pushLoggingInfo = new LoggingFields();
