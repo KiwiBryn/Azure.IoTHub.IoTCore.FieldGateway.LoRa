@@ -60,49 +60,41 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 		private const byte ChipSelectLine = 25;
 		private const byte ResetLine = 17;
 		private const byte InterruptLine = 4;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ChipSelectLine, ResetLine, InterruptLine);
 #endif
 #if M2M
 		private const byte ChipSelectLine = 25;
 		private const byte ResetLine = 17;
 		private const byte InterruptLine = 4;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ChipSelectLine, ResetLine, InterruptLine);
 #endif
 #if ELECROW
 		private const byte ResetLine = 22;
 		private const byte InterruptLine = 25;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, ResetLine, InterruptLine);
 #endif
 #if ELECTRONIC_TRICKS
 		private const byte ResetLine = 22;
 		private const byte InterruptLine = 25;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ResetLine, InterruptLine);
 #endif
 #if UPUTRONICS_RPIZERO_CS0
 		private const byte InterruptLine = 25;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, InterruptLine);
 #endif
 #if UPUTRONICS_RPIZERO_CS1
 		private const byte InterruptLine = 16;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, InterruptLine);
 #endif
 #if UPUTRONICS_RPIPLUS_CS0
 		private const byte InterruptLine = 25;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, InterruptLine);
 #endif
 #if UPUTRONICS_RPIPLUS_CS1
 		private const byte InterruptLine = 16;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, InterruptLine);
 #endif
 #if ADAFRUIT_RADIO_BONNET
 		private const byte ResetLine = 25;
 		private const byte InterruptLine = 22;
-		private Rfm9XDevice rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, ResetLine, InterruptLine);
 #endif
 		private readonly TimeSpan DeviceRestartPeriod = new TimeSpan(0, 0, 25);
 
 		private readonly LoggingChannel logging = new LoggingChannel("devMobile Azure IotHub LoRa Field Gateway", null, new Guid("4bd2826e-54a1-4ba9-bf63-92b73ea1ac4a"));
 		private ApplicationSettings applicationSettings = null;
+		private Rfm9XDevice rfm9XDevice = null;
 		private DeviceClient azureIoTHubClient = null;
 #if CLOUD_DEVICE_SEND
 		private ConcurrentDictionary<byte[], byte[]> sendMessageQueue = new ConcurrentDictionary<byte[], byte[]>();
@@ -201,6 +193,42 @@ namespace devMobile.Azure.IoTHub.IoTCore.FieldGateway.LoRa
 
 			applicationBuildInformation.AddString("ApplicationVersion", string.Format($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}"));
 			this.logging.LogEvent("Application starting", applicationBuildInformation, LoggingLevel.Information);
+
+			try
+			{
+#if DRAGINO
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ChipSelectLine, ResetLine, InterruptLine);
+#endif
+#if M2M
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ChipSelectLine, ResetLine, InterruptLine);
+#endif
+#if ELECROW
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, ResetLine, InterruptLine);
+#endif
+#if ELECTRONIC_TRICKS
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, ResetLine, InterruptLine);
+#endif
+#if UPUTRONICS_RPIZERO_CS0
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, InterruptLine);
+#endif
+#if UPUTRONICS_RPIZERO_CS1
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, InterruptLine);
+#endif
+#if UPUTRONICS_RPIPLUS_CS0
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS0, InterruptLine);
+#endif
+#if UPUTRONICS_RPIPLUS_CS1
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, InterruptLine);
+#endif
+#if ADAFRUIT_RADIO_BONNET
+				rfm9XDevice = new Rfm9XDevice(ChipSelectPin.CS1, ResetLine, InterruptLine);
+#endif
+			}
+			catch (Exception ex)
+			{
+				this.logging.LogMessage("Hardware initialisation failed " + ex.Message, LoggingLevel.Error);
+				return;
+			}
 
 			// Log the Azure connection string and associated settings
 			LoggingFields azureIoTHubSettings = new LoggingFields();
