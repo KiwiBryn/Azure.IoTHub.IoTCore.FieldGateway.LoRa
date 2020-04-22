@@ -46,7 +46,7 @@ I have sample client applications which show how to send telemetry from
 * [@IoTNet](https://blog.devmobile.co.nz/2018/09/20/iot-net-lora-radio-915-mhz-payload-addressing-client/)
 * [@IoTMCU915](https://blog.devmobile.co.nz/2018/09/18/lora-radio-node-v1-0-868-915mhz-payload-addressing-client/)
 * [@AdaFruit Feather M0](https://blog.devmobile.co.nz/2018/09/23/adafruit-feather-m0-rfm95-lora-radio-payload-addressing-client/)
-* [@Elecrow 32u4 with LoRa RFM95 IoT Boatd](https://blog.devmobile.co.nz/2018/09/19/32u4-with-lora-rfm95-iot-board-payload-addressing-client/)
+* [@Elecrow 32u4 with LoRa RFM95 IoT Board](https://blog.devmobile.co.nz/2018/09/19/32u4-with-lora-rfm95-iot-board-payload-addressing-client/)
 * [@M2M Low power LoRaWan Node Model A328](https://blog.devmobile.co.nz/2018/09/14/low-power-lorawan-node-model-a328-payload-addressing-client/)
 * [@M2M Low power LoRaWan Node Model B1284](https://blog.devmobile.co.nz/2018/09/16/low-power-lorawan-node-model-b1248-payload-addressing-client/)
 * [@Dragino LoRa Mini Dev](https://blog.devmobile.co.nz/2018/09/13/dragino-loraminidev-payload-addressing-client/)
@@ -68,7 +68,7 @@ An empty configuration file is created the first time the application is run. A 
 }
 ```
 
-The application has been tested with 433MHz and 915MHz devices and stress tested will a number of clients
+The application has been tested with 433MHz and 915MHz devices and stress tested with a number of clients
 ![Stress tester](LoRaStress.jpg)
 
 The "SensorIDIsDeviceIDSensorID" flag concatenates the deviceID and SensorID together so the device can work with Azure IoT Central.
